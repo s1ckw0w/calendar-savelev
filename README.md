@@ -24,44 +24,18 @@ flowchart LR
     C --> E[web-service Праздники]
 ```
 
-## Требования на компьютере
+## Запуск приложения
 
-- Windows 10/11 с запущенным **Docker Desktop** (Linux containers), либо Linux/macOS с Docker Engine и `docker compose`.
-- Интернет **при первом запуске**, чтобы скачать образы и Python-пакеты.
-- Свободный порт **8080** на компьютере (можно изменить).
+Для работы необходимы Docker и Docker Compose. Из корневой папки проекта выполните:
 
-## Запуск на Windows (Docker Desktop)
+```sh
+docker compose up --build -d
+docker compose ps
+```
 
-1. Запустите Docker Desktop и убедитесь, что Docker Engine работает.
-2. Скачайте исходный код из этого репозитория или клонируйте его:
+В составе приложения запускаются четыре контейнера: `frontend`, `backend`, `db` и `web-service`. Веб-интерфейс доступен по адресу **http://localhost:8080**.
 
-   ```powershell
-   git clone https://github.com/s1ckw0w/calendar-savelev.git
-   cd calendar-savelev
-   ```
-
-   Если проект уже скачан, достаточно открыть PowerShell в его корневой папке, содержащей `docker-compose.yml`.
-3. Соберите и запустите приложение:
-
-   ```powershell
-   docker compose up --build -d
-   ```
-
-   При повторном запуске без изменения исходного кода достаточно `docker compose up -d`.
-4. Проверьте состояние сервисов:
-
-   ```powershell
-   docker compose ps
-   ```
-
-   Должны отображаться `frontend`, `backend`, `db`, `web-service`; после проверки готовности — статус `healthy`.
-5. Откройте браузер: **http://localhost:8080**.
-
-**Альтернативный запуск:** в Windows можно использовать файл `Запустить_в_Docker.cmd` из корня проекта.
-
-Если порт 8080 занят, создайте файл `.env` на основе `.env.example`, установите `FRONTEND_PORT=8081`, затем выполните `docker compose up -d` и откройте http://localhost:8081. Файл `.env` не включайте в Git.
-
-Данные сохраняются в именованном томе `postgres_data`; остановка `docker compose down` его не удаляет. Команду `docker compose down -v` для рабочего проекта использовать не следует.
+При повторном запуске достаточно выполнить `docker compose up -d`. PostgreSQL использует именованный том `postgres_data`, поэтому данные сохраняются при обычной остановке контейнеров.
 
 ## Проверка варианта 28
 
@@ -116,8 +90,6 @@ docker compose up -d                   # запустить снова
 ├── .gitignore
 ├── .env.example
 ├── README.md
-├── Запустить_в_Docker.cmd
-├── Остановить_Docker.cmd
 ├── frontend/
 │   ├── Dockerfile
 │   ├── nginx.conf
