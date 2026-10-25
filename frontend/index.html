@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Календарь праздников — Вариант 28</title>
+  <meta name="description" content="Производственный календарь на Docker Compose — учебный проект, вариант 28">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-symbol" aria-hidden="true">28</div>
+      <div class="brand-name">КАЛЕНДАРЬ<span> / учебный сервис</span></div>
+    </div>
+    <div class="topbar-right">
+      <span class="stack-badge">DOCKER COMPOSE · 4 КОНТЕЙНЕРА</span>
+      <span id="status" class="status status-checking">Проверка API…</span>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="hero">
+      <div class="hero-copy">
+        <div class="eyebrow">ЛАБОРАТОРНЫЙ ПРАКТИКУМ / ВАРИАНТ 28</div>
+        <h1>Праздники и<br><em>производственный</em> календарь</h1>
+        <p>Государственные праздники, выходные и рабочие дни — в одном интерфейсе. Данные рассчитывает отдельный Web-сервис, а выбранные периоды сохраняет PostgreSQL.</p>
+        <div class="hero-tags"><span>Frontend</span><span>FastAPI Backend</span><span>PostgreSQL</span><span>Web-service</span></div>
+      </div>
+      <div class="hero-ornament" aria-hidden="true"><div class="big-number">28</div><span>HOLIDAY<br>CALENDAR</span></div>
+    </section>
+
+    <section class="panel control-panel" aria-labelledby="control-title">
+      <div class="section-heading"><div><div class="small-kicker">01 / НАСТРОЙКИ</div><h2 id="control-title">Выберите период</h2></div><p>Страна, год и месяц</p></div>
+      <div class="form-grid">
+        <label>Страна<select id="country">
+          <option value="RU">Россия</option><option value="DE">Германия</option>
+          <option value="US">США</option><option value="GB">Великобритания</option>
+        </select></label>
+        <label>Год<input id="year" type="number" min="2020" max="2040" value="2026"></label>
+        <label>Месяц<select id="month">
+          <option value="1">Январь</option><option value="2">Февраль</option><option value="3">Март</option>
+          <option value="4">Апрель</option><option value="5">Май</option><option value="6">Июнь</option>
+          <option value="7">Июль</option><option value="8">Август</option><option value="9">Сентябрь</option>
+          <option value="10">Октябрь</option><option value="11">Ноябрь</option><option value="12">Декабрь</option>
+        </select></label>
+      </div>
+      <div class="actions">
+        <button id="fetch" class="btn btn-primary" type="button"><span aria-hidden="true">↗</span> Получить календарь из Web-сервиса</button>
+        <button id="db" class="btn btn-outline" type="button"><span aria-hidden="true">▣</span> Показать данные из БД</button>
+        <button id="save" class="btn btn-accent" type="button"><span aria-hidden="true">↓</span> Сохранить месяц в БД</button>
+      </div>
+      <p class="note">Расчёт: пятидневная рабочая неделя, общегосударственные праздники. Официальные переносы рабочих дней и региональные выходные могут учитываться не полностью.</p>
+      <div role="status" aria-live="polite" id="notice" class="notice" hidden></div>
+    </section>
+
+    <section class="stats-grid" aria-label="Сводка по месяцу">
+      <div class="metric"><span class="metric-label">РАБОЧИХ ДНЕЙ</span><strong id="stat-work">—</strong><span class="metric-description">Понедельник — пятница</span></div>
+      <div class="metric"><span class="metric-label">ВЫХОДНЫХ</span><strong id="stat-weekend">—</strong><span class="metric-description">Суббота и воскресенье</span></div>
+      <div class="metric"><span class="metric-label">ПРАЗДНИКОВ</span><strong id="stat-holiday">—</strong><span class="metric-description">Национальные праздники</span></div>
+    </section>
+
+    <section class="panel" aria-labelledby="calendar-title">
+      <div class="section-heading"><div><div class="small-kicker">02 / WEB-СЕРВИС</div><h2 id="calendar-title">Календарь месяца</h2></div><span id="month-label" class="period-pill">Выберите месяц</span></div>
+      <div id="calendar-empty" class="empty-state">Нажмите «Получить календарь из Web-сервиса», чтобы загрузить данные.</div>
+      <div id="calendar-section" hidden>
+        <div class="weekdays"><span>ПН</span><span>ВТ</span><span>СР</span><span>ЧТ</span><span>ПТ</span><span>СБ</span><span>ВС</span></div>
+        <div class="calendar-grid" id="calendar-grid"></div>
+        <div class="legend"><span><i class="dot dot-workday"></i> Рабочий</span><span><i class="dot dot-weekend"></i> Выходной</span><span><i class="dot dot-holiday"></i> Праздник</span></div>
+        <ul id="holiday-list" class="holiday-list"></ul>
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="saved-title">
+      <div class="section-heading"><div><div class="small-kicker">03 / POSTGRESQL</div><h2 id="saved-title">Сохранённые дни</h2></div><span id="saved-total" class="period-pill">— записей</span></div>
+      <p class="description">Это реальные записи из PostgreSQL. Можно добавить заметку к дате или удалить запись. Данные остаются после перезапуска контейнеров.</p>
+      <div id="saved-empty" class="empty-state">Нажмите «Показать данные из БД», чтобы получить записи.</div>
+      <div id="saved-table-wrap" class="table-scroll" hidden>
+        <table><thead><tr><th>Дата</th><th>Тип</th><th>Праздник</th><th>Заметка</th><th>Действия</th></tr></thead><tbody id="saved-body"></tbody></table>
+      </div>
+    </section>
+    <footer>Практикум «Контейнеризация многокомпонентных приложений» · Вариант 28 · Локальная демонстрация</footer>
+  </main>
+  <script src="/app.js" defer></script>
+</body>
+</html>
